@@ -33,19 +33,16 @@ function getHelloAlecUsingArrowFunctions() {
   });
 }
 
-function getjson() {
+function getJson() {
   fetch('/data').then(response => response.json()).then((data) => {
-    console.log(data);
-    const dataElement = document.getElementById('data-container');
-    dataElement.innerText = '';
-    dataElement.appendChild(
-        createListElement('First item: ' + data[0]));
-    dataElement.appendChild(
-        createListElement('Second item: ' + data[1]));
-    dataElement.appendChild(
-        createListElement('Third item: ' + data[2]));
-    dataElement.appendChild(
-        createListElement('Fourth item: ' + data[3]));
+    
+    const dataElement = document.getElementById('data-container');  
+    dataElement.innerText = ''; 
+    for (var i = 0; i < data.length; i++){
+        dataElement.appendChild(createListElement('Comment ' + [i+1] +' : '+ data[i]));
+        console.log(data[i]);
+    }
+
   });
 }
 //helper method to create list element
