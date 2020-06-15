@@ -14,52 +14,76 @@
 
 package com.google.sps.servlets;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.sps.servlets.DataServlet;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gson.Gson;
+import com.google.sps.data.Task;
 import java.util.*; 
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
-import com.google.gson.Gson;
 import javax.servlet.http.HttpServletResponse;
-import com.google.sps.servlets.DataServlet;
-
-
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-    static ArrayList<String> commentList = new ArrayList<String>();
+
   @Override
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+  public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+   Query query = new Query("Task").addSort("text", SortDirection.DESCENDING);
+   DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();    
+
+   PreparedQuery results = datastore.prepare(query);
+   
+   List<Task> task = new ArrayList<Task>();
+   for (Entity entity : results.asIterable()) {
+      long id = entity.getKey().getId();
+      String text = (String) entity.getProperty("text");
       
-        
-        Gson gson = new Gson();
-        String json = gson.toJson(commentList);
-    
-        response.setContentType("application/json");
-        response.getWriter().println(json);
-        
-  }
+      Task task2 = new Task(id, text);
+      task.add(task2);
+    }
 
-  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    
+    Gson gson = new Gson();
+    response.setContentType("application/json");
+    response.getWriter().println(gson.toJson(task));
+ }
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
-
     String text = getParameter(request, "text-input", "");
+    
+    
 
 
-    commentList.add(text);
-    System.out.println(text);
+    UserService userService = UserServiceFactory.getUserService();
+    
+    Entity taskEntity = new Entity("Task");
+    taskEntity.setProperty("text", text);
+    
+    
+    System.out.println(taskEntity);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(taskEntity);
+
     response.sendRedirect("/index.html");
   }
-  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
+    private String getParameter(HttpServletRequest request, String name, String defaultValue) {
     String value = request.getParameter(name);
     if (value == null) {
       return defaultValue;
     }
     return value;
   }
-
 }
 
+ 
