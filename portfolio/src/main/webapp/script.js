@@ -33,20 +33,50 @@ function getHelloAlecUsingArrowFunctions() {
   });
 }
 
-function getjson() {
-  fetch('/data').then(response => response.json()).then((data) => {
-    console.log(data);
-    const dataElement = document.getElementById('data-container');
-    dataElement.innerText = '';
-    dataElement.appendChild(
-        createListElement('First item: ' + data[0]));
-    dataElement.appendChild(
-        createListElement('Second item: ' + data[1]));
-    dataElement.appendChild(
-        createListElement('Third item: ' + data[2]));
-    dataElement.appendChild(
-        createListElement('Fourth item: ' + data[3]));
-  });
+function getJson() {
+
+    fetch('/loginstatus').then(response => response.json()).then((loginstatus) => {
+        const email = loginstatus.email;
+        const redirectUrl = loginstatus.redirectUrl;
+        const dataElement = document.getElementById('data-container');
+
+        if(email == ""){
+            dataElement.innerText = "Log in to see comments!";
+            console.log("Currently not logged in");
+        }
+
+        else{ 
+            fetch('/data').then(response => response.json()).then((data) => {
+                
+                const dataElement = document.getElementById('data-container');  
+                dataElement.innerText = ''; 
+                for (var i = 0; i < data.length; i++){
+                    dataElement.appendChild(createListElement(data[i].email + ' | Comment ' + [i+1] +' : '+ data[i].text));
+                    console.log(data[i].text);
+                }
+
+            });
+        }
+    });
+}
+
+function getLoginStatus() {
+    fetch('/loginstatus').then(response => response.json()).then((loginstatus) => {
+        const email = loginstatus.email;
+        const redirectUrl = loginstatus.redirectUrl;
+        const loginStatusLink = document.getElementById('loginstatuslink');
+        loginStatusLink.href = redirectUrl;
+        const loginStatusMsg = document.getElementById('loginstatus-container');
+        if (email == ""){
+            loginStatusLink.innerText = "Login here";
+            loginStatusMsg.innerText = "******Login to be able to comment******";
+        }
+        else{
+            loginStatusLink.innerText = "Logout here";
+            loginStatusMsg.innerText = "Hello " + email + " you are now logged in!";      
+        }
+
+    });
 }
 //helper method to create list element
 function createListElement(text) {
