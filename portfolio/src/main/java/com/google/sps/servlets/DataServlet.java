@@ -48,10 +48,11 @@ public class DataServlet extends HttpServlet {
    List<Task> taskList = new ArrayList<Task>();
    for (Entity entity : results.asIterable()) {
       long id = entity.getKey().getId();
+      String email = (String) entity.getProperty("email");
       String text = (String) entity.getProperty("text");
       
-      Task task = new Task(id, text);
-      task.add(task);
+      Task task = new Task(id, text, email);
+      taskList.add(task);
     }
 
     Gson gson = new Gson();
@@ -60,13 +61,11 @@ public class DataServlet extends HttpServlet {
  }
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
+    
     String text = getParameter(request, "text-input", "");
     
-    
-
-
     UserService userService = UserServiceFactory.getUserService();
-    
+    String email = userService.getCurrentUser().getEmail();
     Entity taskEntity = new Entity("Task");
     taskEntity.setProperty("text", text);
     
