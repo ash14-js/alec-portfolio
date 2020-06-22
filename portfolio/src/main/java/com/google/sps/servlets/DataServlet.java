@@ -45,18 +45,18 @@ public class DataServlet extends HttpServlet {
 
    PreparedQuery results = datastore.prepare(query);
    
-   List<Task> task = new ArrayList<Task>();
+   List<Task> taskList = new ArrayList<Task>();
    for (Entity entity : results.asIterable()) {
       long id = entity.getKey().getId();
       String text = (String) entity.getProperty("text");
       
-      Task task2 = new Task(id, text);
-      task.add(task2);
+      Task task = new Task(id, text);
+      task.add(task);
     }
 
     Gson gson = new Gson();
     response.setContentType("application/json");
-    response.getWriter().println(gson.toJson(task));
+    response.getWriter().println(gson.toJson(taskList));
  }
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
